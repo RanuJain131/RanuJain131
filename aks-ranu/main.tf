@@ -22,8 +22,8 @@ resource "azurerm_resource_group" "rg" {
 
 resource "azurerm_kubernetes_cluster" "cluster" {
   name                = "learnk8scluster"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = eastus
+  resource_group_name = RG-Morpheus-Demo
   dns_prefix          = "learnk8scluster"
 
   default_node_pool {
