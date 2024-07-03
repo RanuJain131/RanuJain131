@@ -1,0 +1,29 @@
+---
+- name: Install Zabbix Agent on Windows VM
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Copy Zabbix Agent Installer to Windows VM
+      win_copy:
+        src: /path/to/zabbix_agent.msi
+        dest: C:\temp\zabbix_agent.msi
+
+    - name: Install Zabbix Agent
+      win_package:
+        path: C:\temp\zabbix_agent.msi
+        state: present
+      register: install_result
+
+    - name: Configure Zabbix Agent
+      win_ini_file:
+        path: "C:\\Program Files\\Zabbix Agent\\zabbix_agentd.conf"
+        section: "Server"
+        option: "Server"
+        value: "zabbix_server_ip"
+        state: present
+
+    - name: Start Zabbix Agent service
+      win_service:
+        name: ZabbixAgent
+        start_mode: auto
+        state: started
