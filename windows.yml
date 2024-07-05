@@ -1,0 +1,23 @@
+---
+- name: Configure Windows Time service and Firewall
+  hosts: windows_hosts  # Replace with your Windows host group or specific host
+
+  tasks:
+    - name: Set Windows Time service to automatic startup
+      ansible.windows.win_service:
+        name: W32Time
+        start_mode: auto
+      register: time_service_result
+
+    - name: Turn off Windows Firewall
+      ansible.windows.win_firewall_rule:
+        name: "All Firewall Rules"
+        state: absent
+      register: firewall_result
+
+    - name: Display results
+      debug:
+        msg: "{{ item.name }} - {{ item.status }} - {{ item.changed }}"
+      loop:
+        - "{{ time_service_result }}"
+        - "{{ firewall_result }}"
