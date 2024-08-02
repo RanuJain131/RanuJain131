@@ -1,23 +1,25 @@
 ---
-- name: Configure Windows Time service and Firewall
-  hosts: windows_hosts  # Replace with your Windows host group or specific host
-
+- name: Disable Windows Firewall for all profiles
+  hosts: windows
+  gather_facts: yes
   tasks:
-    - name: Set Windows Time service to automatic startup
-      ansible.windows.win_service:
-        name: W32Time
-        start_mode: auto
-      register: time_service_result
+    - name: Disable Windows Firewall for Domain profile
+      win_shell: |
+        Set-NetFirewallProfile -Profile Domain -Enabled False
 
-    - name: Turn off Windows Firewall
-      ansible.windows.win_firewall_rule:
-        name: "All Firewall Rules"
-        state: absent
-      register: firewall_result
+    - name: Disable Windows Firewall for Private profile
+      win_shell: |
+        Set-NetFirewallProfile -Profile Private -Enabled False
 
-    - name: Display results
+    - name: Disable Windows Firewall for Public profile
+      win_shell: |
+        Set-NetFirewallProfile -Profile Public -Enabled False
+
+    - name: Confirm Windows Firewall status for all profiles
+      win_shell: |
+        Get-NetFirewallProfile | Select-Object Name, Enabled
+      register: firewall_status
+
+    - name: Display Firewall status
       debug:
-        msg: "{{ item.name }} - {{ item.status }} - {{ item.changed }}"
-      loop:
-        - "{{ time_service_result }}"
-        - "{{ firewall_result }}"
+        msg: "{{ firewall_status.stdout }}"
