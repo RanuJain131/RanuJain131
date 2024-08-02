@@ -1,6 +1,6 @@
 ---
 - name: Disable Windows Firewall for all profiles
-  hosts: windows
+  hosts: all
   gather_facts: yes
   tasks:
     - name: Disable Windows Firewall for Domain profile
