@@ -1,25 +1,52 @@
 ---
-- name: Disable Windows Firewall for all profiles
+- name: Configure Windows Server 2022
   hosts: all
   gather_facts: yes
   tasks:
-    - name: Disable Windows Firewall for Domain profile
-      win_shell: |
-        Set-NetFirewallProfile -Profile Domain -Enabled False
+    - name: Enable Remote Desktop
+      win_service:
+        name: TermService
+        start_mode: auto
+        state: started
 
-    - name: Disable Windows Firewall for Private profile
-      win_shell: |
-        Set-NetFirewallProfile -Profile Private -Enabled False
+    - name: Enable Remote Desktop through firewall
+      win_firewall_rule:
+        name: "Remote Desktop"
+        enable: yes
+        direction: in
+        action: allow
+        localport: 3389
+        protocol: TCP
 
-    - name: Disable Windows Firewall for Public profile
-      win_shell: |
-        Set-NetFirewallProfile -Profile Public -Enabled False
+    - name: Disable Windows Firewall Domain Profile
+      win_firewall_rule:
+        name: "Domain Profile"
+        enable: no
+        direction: in
+        action: block
+        localport: all
+        protocol: all
 
-    - name: Confirm Windows Firewall status for all profiles
-      win_shell: |
-        Get-NetFirewallProfile | Select-Object Name, Enabled
-      register: firewall_status
+    - name: Disable Windows Firewall Private Profile
+      win_firewall_rule:
+        name: "Private Profile"
+        enable: no
+        direction: in
+        action: block
+        localport: all
+        protocol: all
 
-    - name: Display Firewall status
-      debug:
-        msg: "{{ firewall_status.stdout }}"
+    - name: Disable Windows Firewall Public Profile
+      win_firewall_rule:
+        name: "Public Profile"
+        enable: no
+        direction: in
+        action: block
+        localport: all
+        protocol: all
+
+    - name: Disable Windows Firewall
+      win_service:
+        name: MpsSvc
+        start_mode: disabled
+        state: stopped
